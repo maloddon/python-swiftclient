@@ -1695,7 +1695,7 @@ class SwiftService(object):
     @staticmethod
     def _upload_segment_job(conn, path, container, segment_name, segment_start,
                             segment_size, segment_index, obj_name, options,
-                            results_queue=None):
+                            results_queue=None, headers=None):
         results_dict = {}
         if options['segment_container']:
             segment_container = options['segment_container']
@@ -1723,7 +1723,8 @@ class SwiftService(object):
                 contents,
                 content_length=segment_size,
                 content_type='application/swiftclient-segment',
-                response_dict=results_dict)
+                response_dict=results_dict,
+                headers=headers)
 
             if options['checksum'] and etag and etag != contents.get_md5sum():
                 raise SwiftError('Segment {0}: upload verification failed: '
@@ -1926,7 +1927,8 @@ class SwiftService(object):
                     seg = segment_pool.submit(
                         self._upload_segment_job, path, container,
                         segment_name, segment_start, segment_size, segment,
-                        obj, options, results_queue=results_queue
+                        obj, options, results_queue=results_queue,
+                        headers=put_headers
                     )
                     segment_futures.append(seg)
                     segment += 1
